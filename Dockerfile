@@ -1,11 +1,17 @@
 FROM php:7.1-fpm
 
-RUN apt-get update && apt-get install -y \
+COPY sources.list /etc/apt/sources.list
+
+RUN apt-cache gencaches \
+    && apt-get update \
+    && apt-get install -y \
         wget \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
         libmcrypt-dev \
         libpng12-dev \
+        libpcre3 \
+        libpcre3-dev \
     && docker-php-ext-install -j$(nproc) iconv mcrypt pdo_mysql zip bcmath \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd \
@@ -13,7 +19,9 @@ RUN apt-get update && apt-get install -y \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && echo "date.timezone=PRC" > /usr/local/etc/php/conf.d/timezone.ini \
-    && echo "memory_limit=512M" > /usr/local/etc/php/conf.d/memory.ini
+    && echo "memory_limit=512M" > /usr/local/etc/php/conf.d/memory.ini \
+    && apt-get clean \
+    && apt-get autoremove
 
 VOLUME /www
 WORKDIR /www
