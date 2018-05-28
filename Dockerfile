@@ -6,6 +6,7 @@ RUN apt-cache gencaches \
     && apt-get update \
     && apt-get install -y \
         wget \
+        zlib1g-dev \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
         libmcrypt-dev \
