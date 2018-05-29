@@ -8,9 +8,6 @@ ENV PHP_POOL_PM_CONTROL=dynamic \
     PHP_POOL_PM_MAX_SPARE_SERVERS=3 \
     PHP_CONF_LOG_DIR=/www/logs/php
 
-
-COPY setup.sh /setup.sh
-
 # $PHPIZE_DEPS Contains in php:7.1-fpm-alpine
 # Change Alpine default www uid/gid from 82 to 33 (CentOS default)
 # Date default time zone set as PRC
