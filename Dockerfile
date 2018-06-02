@@ -9,6 +9,7 @@ ENV PHP_POOL_PM_CONTROL=dynamic \
     PHP_CONF_LOG_DIR=/www/logs/php
 
 # $PHPIZE_DEPS Contains in php:7.1-fpm-alpine
+# Remove xfs user and group (gid:33 uid:33)
 # Change Alpine default www uid/gid from 82 to 33 (CentOS default)
 # Date default time zone set as PRC
 # Set maximum memory limit to 512MB
@@ -28,6 +29,8 @@ RUN set -x && apk add --no-cache --virtual .build-deps \
     && pecl install redis && docker-php-ext-enable redis \
 	&& apk del .build-deps \
     && apk add --no-cache libpng libjpeg freetype libmcrypt \
+    && sed -i /xfs:/d /etc/passwd \
+    && sed -i /xfs:/d /etc/group \
     && sed -i s/:82:82:/:33:33:/g /etc/passwd \
     && sed -i s/:82:/:33:/g /etc/group \
     && cd /usr/local/etc \
