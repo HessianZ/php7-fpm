@@ -35,7 +35,7 @@ RUN set -x \
     && pecl install redis && docker-php-ext-enable redis \
     && pecl install "channel://pecl.php.net/mcrypt-1.0.2" && docker-php-ext-enable mcrypt \
 	&& apk del .build-deps \
-    && apk add --no-cache libpng libjpeg freetype libmcrypt \
+    && apk add --no-cache libzip libpng libjpeg freetype libmcrypt \
     && sed -i /xfs:/d /etc/passwd \
     && sed -i /xfs:/d /etc/group \
     && sed -i s/:82:82:/:33:33:/g /etc/passwd \
