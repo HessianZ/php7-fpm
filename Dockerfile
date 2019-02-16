@@ -1,4 +1,4 @@
-FROM php:7.1-fpm-alpine
+FROM php:7.3-fpm-alpine
 
 # 生产环境配置
 ENV PHP_POOL_PM_CONTROL=dynamic \
@@ -14,10 +14,11 @@ ENV PHP_POOL_PM_CONTROL=dynamic \
 # Date default time zone set as PRC
 # Set maximum memory limit to 512MB
 RUN set -x \
- && echo "https://mirrors.aliyun.com/alpine/v3.7/main" > /etc/apk/repositories \
- && echo "https://mirrors.aliyun.com/alpine/v3.7/community" >> /etc/apk/repositories \
+ && export ALPINE_VERSION=$(cat /etc/alpine-release) \
+ && echo "https://mirrors.aliyun.com/alpine/v${ALPINE_VERSION:0:3}/main" > /etc/apk/repositories \
+ && echo "https://mirrors.aliyun.com/alpine/v${ALPINE_VERSION:0:3}/community" >> /etc/apk/repositories \
  && apk add --no-cache --virtual .build-deps \
-        $PHPIZE_DEPS \ 
+        $PHPIZE_DEPS \
         coreutils \
         freetype-dev \
         jpeg-dev \
@@ -25,12 +26,14 @@ RUN set -x \
         libmcrypt-dev \
         libpng-dev \
         pcre-dev \
-    && apk add gnu-libiconv --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted \
-    && docker-php-ext-install -j "$(nproc)" iconv pdo_mysql zip bcmath mcrypt \
+        libzip-dev \
+    && apk add gnu-libiconv --update-cache --repository "https://mirrors.aliyun.com/alpine/edge/testing" --allow-untrusted \
+    && docker-php-ext-install -j "$(nproc)" iconv pdo_mysql zip bcmath opcache \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j "$(nproc)" gd \
     && docker-php-ext-install -j "$(nproc)" mysqli \
-    && pecl install http://pecl.php.net/get/redis-4.0.2.tgz && docker-php-ext-enable redis \
+    && pecl install redis && docker-php-ext-enable redis \
+    && pecl install "channel://pecl.php.net/mcrypt-1.0.2" && docker-php-ext-enable mcrypt \
 	&& apk del .build-deps \
     && apk add --no-cache libpng libjpeg freetype libmcrypt \
     && sed -i /xfs:/d /etc/passwd \
@@ -49,6 +52,7 @@ RUN set -x \
     && sed -i "s!^access.log =.*!access.log = $PHP_CONF_LOG_DIR/php.\$pool.access.log!" php-fpm.d/docker.conf \
     && echo 'access.format = "%R - %u %t \"%m %{REQUEST_URI}e\" %s %f %{mili}d %{kilo}M %C%%"' >> php-fpm.d/docker.conf
 
+# Fix iconv compatible between alphine and php
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 
 VOLUME /www
