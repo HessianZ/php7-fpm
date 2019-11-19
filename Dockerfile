@@ -15,8 +15,8 @@ ENV PHP_POOL_PM_CONTROL=dynamic \
 # Set maximum memory limit to 512MB
 RUN set -x \
  && export ALPINE_VERSION=$(cat /etc/alpine-release) \
- && echo "https://mirrors.aliyun.com/alpine/v${ALPINE_VERSION:0:3}/main" > /etc/apk/repositories \
- && echo "https://mirrors.aliyun.com/alpine/v${ALPINE_VERSION:0:3}/community" >> /etc/apk/repositories \
+ && echo "https://mirrors.cloud.tencent.com/alpine/v${ALPINE_VERSION:0:3}/main" > /etc/apk/repositories \
+ && echo "https://mirrors.cloud.tencent.com/alpine/v${ALPINE_VERSION:0:3}/community" >> /etc/apk/repositories \
  && apk add --no-cache --virtual .build-deps \
         $PHPIZE_DEPS \
         coreutils \
@@ -27,7 +27,7 @@ RUN set -x \
         libpng-dev \
         pcre-dev \
         libzip-dev \
-    && apk add gnu-libiconv --update-cache --repository "https://mirrors.aliyun.com/alpine/edge/testing" --allow-untrusted \
+    && apk add gnu-libiconv --update-cache --repository "https://mirrors.cloud.tencent.com/alpine/edge/testing" --allow-untrusted \
     && docker-php-ext-install -j "$(nproc)" iconv pdo_mysql zip bcmath opcache \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j "$(nproc)" gd \
