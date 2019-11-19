@@ -14,9 +14,9 @@ ENV PHP_POOL_PM_CONTROL=dynamic \
 # Date default time zone set as PRC
 # Set maximum memory limit to 512MB
 RUN set -x \
- && export ALPINE_VERSION=$(cat /etc/alpine-release) \
- && echo "https://mirrors.cloud.tencent.com/alpine/v${ALPINE_VERSION:0:3}/main" > /etc/apk/repositories \
- && echo "https://mirrors.cloud.tencent.com/alpine/v${ALPINE_VERSION:0:3}/community" >> /etc/apk/repositories \
+ && export ALPINE_VERSION=$(sed 's/\.\d\+$//' /etc/alpine-release) \
+ && echo "https://mirrors.cloud.tencent.com/alpine/v${ALPINE_VERSION}/main" > /etc/apk/repositories \
+ && echo "https://mirrors.cloud.tencent.com/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories \
  && apk add --no-cache --virtual .build-deps \
         $PHPIZE_DEPS \
         coreutils \
