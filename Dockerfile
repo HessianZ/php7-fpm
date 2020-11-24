@@ -33,6 +33,9 @@ RUN set -x \
     && docker-php-ext-install -j "$(nproc)" gd \
     && docker-php-ext-install -j "$(nproc)" mysqli \
     && pecl install redis && docker-php-ext-enable redis \
+    && pecl install mongodb && docker-php-ext-enable mongodb \
+    && pecl install psr && docker-php-ext-enable psr \
+    && pecl install phalcon && docker-php-ext-enable phalcon \
     && pecl install "channel://pecl.php.net/mcrypt-1.0.2" && docker-php-ext-enable mcrypt \
 	&& apk del .build-deps \
     && apk add --no-cache libzip libpng libjpeg freetype libmcrypt \
