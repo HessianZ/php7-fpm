@@ -8,16 +8,19 @@ ENV PHP_POOL_PM_CONTROL=dynamic \
     PHP_POOL_PM_MAX_SPARE_SERVERS=3 \
     PHP_CONF_LOG_DIR=/www/logs/php
 
+COPY ext/* /tmp/ext/
+
 # $PHPIZE_DEPS Contains in php:7.1-fpm-alpine
 # Remove xfs user and group (gid:33 uid:33)
 # Change Alpine default www uid/gid from 82 to 33 (CentOS default)
 # Date default time zone set as PRC
 # Set maximum memory limit to 512MB
+# XHProf 比较讨厌，tgz里面还有一层extension目录，会导致无法直接用docker-php-ext-install 安装
 RUN set -x \
  && export ALPINE_VERSION=$(sed 's/\.\d\+$//' /etc/alpine-release) \
  && echo "https://mirrors.cloud.tencent.com/alpine/v${ALPINE_VERSION}/main" > /etc/apk/repositories \
  && echo "https://mirrors.cloud.tencent.com/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories \
- && apk add --no-cache --virtual .build-deps \
+ && apk add --no-cache --virtual /tmp/.build-deps \
         $PHPIZE_DEPS \
         coreutils \
         freetype-dev \
@@ -32,12 +35,16 @@ RUN set -x \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j "$(nproc)" gd \
     && docker-php-ext-install -j "$(nproc)" mysqli \
-    && pecl install redis && docker-php-ext-enable redis \
-    && pecl install mongodb && docker-php-ext-enable mongodb \
-    && pecl install psr && docker-php-ext-enable psr \
-    && pecl install phalcon && docker-php-ext-enable phalcon \
-    && pecl install "channel://pecl.php.net/mcrypt-1.0.2" && docker-php-ext-enable mcrypt \
-	&& apk del .build-deps \
+    && pecl bundle -d /usr/src/php/ext /tmp/ext/redis-5.3.2.tgz \
+    && pecl bundle -d /usr/src/php/ext /tmp/ext/mongodb-1.8.2.tgz \
+    && pecl bundle -d /usr/src/php/ext /tmp/ext/psr-1.0.1.tgz \
+    && pecl bundle -d /usr/src/php/ext /tmp/ext/phalcon-4.1.0.tgz \
+    && pecl bundle -d /usr/src/php/ext /tmp/ext/mcrypt-1.0.3.tgz \
+    && docker-php-ext-install -j "$(nproc)" redis mongodb psr phalcon mcrypt \
+    && pecl install /tmp/ext/xhprof-2.2.0.tgz \
+    && docker-php-ext-enable xhprof \
+    && rm -rf /tmp/*.tgz \
+	&& apk del /tmp/.build-deps \
     && apk add --no-cache libzip libpng libjpeg freetype libmcrypt \
     && sed -i /xfs:/d /etc/passwd \
     && sed -i /xfs:/d /etc/group \
@@ -46,6 +53,8 @@ RUN set -x \
     && cd /usr/local/etc \
     && echo "date.timezone=PRC" > php/conf.d/timezone.ini \
     && echo "memory_limit=512M" > php/conf.d/memory.ini \
+    && echo "[xhprof]" > php/conf.d/xhprof.ini \
+    && echo "xhprof.output_dir=/www/logs/xhprof" >> php/conf.d/xhprof.ini \
     && sed -i "s/^pm =.*/pm = $PHP_POOL_PM_CONTROL/" php-fpm.d/www.conf \
     && sed -i "s/^pm.max_children.*/pm.max_children = $PHP_POOL_PM_MAX_CHILDREN/" php-fpm.d/www.conf \
     && sed -i "s/^pm.start_servers.*/pm.start_servers = $PHP_POOL_PM_START_SERVERS/" php-fpm.d/www.conf \
