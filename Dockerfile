@@ -2,11 +2,11 @@ FROM php:7.3-fpm-alpine
 
 # 生产环境配置
 ENV PHP_POOL_PM_CONTROL=dynamic \
-    PHP_POOL_PM_MAX_CHILDREN=200 \
-    PHP_POOL_PM_START_SERVERS=1 \
-    PHP_POOL_PM_MIN_SPARE_SERVERS=1 \
-    PHP_POOL_PM_MAX_SPARE_SERVERS=3 \
-    PHP_CONF_LOG_DIR=/www/logs/php
+    PHP_POOL_PM_MAX_CHILDREN=250 \
+    PHP_POOL_PM_START_SERVERS=100 \
+    PHP_POOL_PM_MIN_SPARE_SERVERS=100 \
+    PHP_POOL_PM_MAX_SPARE_SERVERS=250 \
+    PHP_CONF_LOG_DIR=/data/logs/php
 
 COPY ext/* /tmp/ext/
 
@@ -41,8 +41,6 @@ RUN set -x \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/phalcon-4.1.0.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mcrypt-1.0.3.tgz \
     && docker-php-ext-install -j "$(nproc)" redis mongodb psr phalcon mcrypt \
-    && pecl install /tmp/ext/xhprof-2.2.0.tgz \
-    && docker-php-ext-enable xhprof \
     && rm -rf /tmp/*.tgz \
 	&& apk del /tmp/.build-deps \
     && apk add --no-cache libzip libpng libjpeg freetype libmcrypt \
@@ -53,8 +51,6 @@ RUN set -x \
     && cd /usr/local/etc \
     && echo "date.timezone=PRC" > php/conf.d/timezone.ini \
     && echo "memory_limit=512M" > php/conf.d/memory.ini \
-    && echo "[xhprof]" > php/conf.d/xhprof.ini \
-    && echo "xhprof.output_dir=/www/logs/xhprof" >> php/conf.d/xhprof.ini \
     && sed -i "s/^pm =.*/pm = $PHP_POOL_PM_CONTROL/" php-fpm.d/www.conf \
     && sed -i "s/^pm.max_children.*/pm.max_children = $PHP_POOL_PM_MAX_CHILDREN/" php-fpm.d/www.conf \
     && sed -i "s/^pm.start_servers.*/pm.start_servers = $PHP_POOL_PM_START_SERVERS/" php-fpm.d/www.conf \
@@ -67,5 +63,5 @@ RUN set -x \
 # Fix iconv compatible between alphine and php
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 
-VOLUME /www
-WORKDIR /www
+VOLUME /data/www
+WORKDIR /data/www
