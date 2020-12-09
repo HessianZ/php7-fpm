@@ -6,7 +6,9 @@ ENV PHP_POOL_PM_CONTROL=dynamic \
     PHP_POOL_PM_START_SERVERS=100 \
     PHP_POOL_PM_MIN_SPARE_SERVERS=100 \
     PHP_POOL_PM_MAX_SPARE_SERVERS=250 \
-    PHP_CONF_LOG_DIR=/data/logs/php
+    PHP_CONF_LOG_DIR=/data/logs/php \
+    PHP_WWW_DATA_GID=1000 \
+    PHP_WWW_DATA_UID=1000
 
 COPY ext/* /tmp/ext/
 
@@ -41,13 +43,12 @@ RUN set -x \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/phalcon-4.1.0.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mcrypt-1.0.3.tgz \
     && docker-php-ext-install -j "$(nproc)" redis mongodb psr phalcon mcrypt \
+    && pecl install /tmp/ext/xhprof-2.2.0.tgz \
     && rm -rf /tmp/*.tgz \
 	&& apk del /tmp/.build-deps \
     && apk add --no-cache libzip libpng libjpeg freetype libmcrypt \
-    && sed -i /xfs:/d /etc/passwd \
-    && sed -i /xfs:/d /etc/group \
-    && sed -i s/:82:82:/:33:33:/g /etc/passwd \
-    && sed -i s/:82:/:33:/g /etc/group \
+    && sed -i s/:82:82:/:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g /etc/passwd \
+    && sed -i s/:82:/:${PHP_WWW_DATA_GID}:/g /etc/group \
     && cd /usr/local/etc \
     && echo "date.timezone=PRC" > php/conf.d/timezone.ini \
     && echo "memory_limit=512M" > php/conf.d/memory.ini \
