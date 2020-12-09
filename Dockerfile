@@ -47,8 +47,8 @@ RUN set -x \
     && rm -rf /tmp/*.tgz \
 	&& apk del /tmp/.build-deps \
     && apk add --no-cache libzip libpng libjpeg freetype libmcrypt \
-    && sed -i s/:82:82:/:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g /etc/passwd \
-    && sed -i s/:82:/:${PHP_WWW_DATA_GID}:/g /etc/group \
+    && sed -i "s/:82:82:/:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g" /etc/passwd \
+    && sed -i "s/:82:/:${PHP_WWW_DATA_GID}:/g" /etc/group \
     && cd /usr/local/etc \
     && echo "date.timezone=PRC" > php/conf.d/timezone.ini \
     && echo "memory_limit=512M" > php/conf.d/memory.ini \
