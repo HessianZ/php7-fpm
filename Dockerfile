@@ -1,4 +1,4 @@
-FROM php:7.3-fpm-alpine
+FROM php:7.4-fpm-alpine
 
 # 生产环境配置
 ENV PHP_POOL_PM_CONTROL=dynamic \
@@ -32,7 +32,9 @@ RUN set -x \
         libpng-dev \
         pcre-dev \
         libzip-dev \
+        tzdata \
     && apk add gnu-libiconv --update-cache --repository "https://mirrors.cloud.tencent.com/alpine/edge/testing" --allow-untrusted \
+    && cp /usr/share/zoneinfo/PRC /etc/localtime \
     && docker-php-ext-install -j "$(nproc)" iconv pdo_mysql zip bcmath opcache \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j "$(nproc)" gd \
@@ -46,6 +48,7 @@ RUN set -x \
     && pecl install /tmp/ext/xhprof-2.2.0.tgz \
     && rm -rf /tmp/*.tgz \
 	&& apk del /tmp/.build-deps \
+	&& apk tzdata \
     && apk add --no-cache libzip libpng libjpeg freetype libmcrypt \
     && sed -i "s/:82:82:/:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g" /etc/passwd \
     && sed -i "s/:82:/:${PHP_WWW_DATA_GID}:/g" /etc/group \
