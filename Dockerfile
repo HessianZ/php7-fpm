@@ -32,6 +32,7 @@ RUN set -x \
         libpng-dev \
         pcre-dev \
         libzip-dev \
+        openssl-dev \
     && apk add gnu-libiconv --update-cache --repository "https://mirrors.cloud.tencent.com/alpine/edge/testing" --allow-untrusted \
     && docker-php-ext-install -j "$(nproc)" iconv pdo_mysql zip bcmath opcache \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
