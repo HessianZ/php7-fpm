@@ -38,7 +38,7 @@ RUN set -x \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j "$(nproc)" gd \
     && docker-php-ext-install -j "$(nproc)" mysqli \
-    && pecl bundle -d /usr/src/php/ext /tmp/ext/redis-5.3.2.tgz \
+    && pecl bundle -d /usr/src/php/ext /tmp/ext/redis-4.1.1.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mongodb-1.8.2.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/psr-1.0.1.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/phalcon-4.1.0.tgz \
