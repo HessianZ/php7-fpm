@@ -55,7 +55,7 @@ RUN set -x \
     && sed -i "s/:82:/:${PHP_WWW_DATA_GID}:/g" /etc/group \
     && cd /usr/local/etc \
     && cp /usr/src/php/php.ini-production /usr/local/etc/php/php.ini \
-    && sed -i "s/short_open_tag = Off/short_open_tag = On/g" /usr/local/etc/php.ini \
+    && sed -i "s/short_open_tag = Off/short_open_tag = On/g" /usr/local/etc/php/php.ini \
     && echo "date.timezone=PRC" > php/conf.d/timezone.ini \
     && echo "memory_limit=512M" > php/conf.d/memory.ini \
     && sed -i "s/^pm =.*/pm = $PHP_POOL_PM_CONTROL/" php-fpm.d/www.conf \
