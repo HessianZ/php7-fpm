@@ -33,6 +33,7 @@ RUN set -x \
         pcre-dev \
         libzip-dev \
         tzdata \
+        openssl-dev \
     && apk add gnu-libiconv --update-cache --repository "https://mirrors.cloud.tencent.com/alpine/edge/testing" --allow-untrusted \
     && cp /usr/share/zoneinfo/PRC /etc/localtime \
     && docker-php-ext-install -j "$(nproc)" iconv pdo_mysql zip bcmath opcache \
@@ -53,6 +54,8 @@ RUN set -x \
     && sed -i "s/:82:82:/:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g" /etc/passwd \
     && sed -i "s/:82:/:${PHP_WWW_DATA_GID}:/g" /etc/group \
     && cd /usr/local/etc \
+    && cp php.ini-production php.ini \
+    && sed -i "s/short_open_tag = Off/short_open_tag = On/g" php.ini \
     && echo "date.timezone=PRC" > php/conf.d/timezone.ini \
     && echo "memory_limit=512M" > php/conf.d/memory.ini \
     && sed -i "s/^pm =.*/pm = $PHP_POOL_PM_CONTROL/" php-fpm.d/www.conf \
