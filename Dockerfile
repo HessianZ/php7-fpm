@@ -33,6 +33,8 @@ RUN set -x \
         pcre-dev \
         libzip-dev \
         openssl-dev \
+        tzdata \
+    && cp /usr/share/zoneinfo/PRC /etc/localtime \
     && apk add gnu-libiconv --update-cache --repository "https://mirrors.cloud.tencent.com/alpine/edge/testing" --allow-untrusted \
     && docker-php-ext-install -j "$(nproc)" iconv pdo_mysql zip bcmath opcache \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
@@ -47,6 +49,7 @@ RUN set -x \
     && pecl install /tmp/ext/xhprof-2.2.0.tgz \
     && rm -rf /tmp/*.tgz \
 	&& apk del /tmp/.build-deps \
+	&& apk del tzdata \
     && apk add --no-cache libzip libpng libjpeg freetype libmcrypt \
     && sed -i "s/:82:82:/:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g" /etc/passwd \
     && sed -i "s/:82:/:${PHP_WWW_DATA_GID}:/g" /etc/group \
