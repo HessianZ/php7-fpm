@@ -49,7 +49,7 @@ RUN set -x \
     && pecl install /tmp/ext/xhprof-2.2.0.tgz \
     && rm -rf /tmp/*.tgz \
 	&& apk del /tmp/.build-deps \
-	&& apk tzdata \
+	&& apk del tzdata \
     && apk add --no-cache libzip libpng libjpeg freetype libmcrypt \
     && sed -i "s/:82:82:/:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g" /etc/passwd \
     && sed -i "s/:82:/:${PHP_WWW_DATA_GID}:/g" /etc/group \
