@@ -14,7 +14,7 @@ COPY ext/* /tmp/ext/
 
 # $PHPIZE_DEPS Contains in php:7.1-fpm-alpine
 # Remove xfs user and group (gid:33 uid:33)
-# Change Alpine default www uid/gid from 82 to 33 (CentOS default)
+# Change Alpine default www uid/gid from 82 to 1000
 # Date default time zone set as PRC
 # Set maximum memory limit to 512MB
 # XHProf 比较讨厌，tgz里面还有一层extension目录，会导致无法直接用docker-php-ext-install 安装
@@ -53,6 +53,7 @@ RUN set -x \
     && apk add --no-cache libzip libpng libjpeg freetype libmcrypt \
     && sed -i "s/:82:82:/:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g" /etc/passwd \
     && sed -i "s/:82:/:${PHP_WWW_DATA_GID}:/g" /etc/group \
+    && chown ${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID} -R /home/www-data \
     && cd /usr/local/etc \
     && cp /usr/src/php/php.ini-production /usr/local/etc/php/php.ini \
     && sed -i "s/short_open_tag = Off/short_open_tag = On/g" /usr/local/etc/php/php.ini \
