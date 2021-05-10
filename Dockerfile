@@ -1,4 +1,4 @@
-FROM php:7.3-fpm-alpine
+FROM php:7.2.10-fpm-alpine
 
 # 生产环境配置
 ENV PHP_POOL_PM_CONTROL=dynamic \
@@ -11,6 +11,7 @@ ENV PHP_POOL_PM_CONTROL=dynamic \
     PHP_WWW_DATA_UID=1000
 
 COPY ext/* /tmp/ext/
+COPY ext/phalcon.so /usr/local/lib/php/extensions/no-debug-non-zts-20131226
 
 # $PHPIZE_DEPS Contains in php:7.1-fpm-alpine
 # Remove xfs user and group (gid:33 uid:33)
@@ -43,9 +44,9 @@ RUN set -x \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/redis-5.3.2.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mongodb-1.8.2.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/psr-1.0.1.tgz \
-    && pecl bundle -d /usr/src/php/ext /tmp/ext/phalcon-4.1.0.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mcrypt-1.0.3.tgz \
-    && docker-php-ext-install -j "$(nproc)" redis mongodb psr phalcon mcrypt sockets \
+    && docker-php-ext-install -j "$(nproc)" redis mongodb psr mcrypt sockets \
+    && docker-php-ext-enable phalcon \
     && pecl install /tmp/ext/xhprof-2.2.0.tgz \
     && rm -rf /tmp/*.tgz \
 	&& apk del /tmp/.build-deps \
