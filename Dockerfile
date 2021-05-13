@@ -11,7 +11,6 @@ ENV PHP_POOL_PM_CONTROL=dynamic \
     PHP_WWW_DATA_UID=1000
 
 COPY ext/* /tmp/ext/
-COPY ext/phalcon.so /usr/local/lib/php/extensions/no-debug-non-zts-20131226
 
 # $PHPIZE_DEPS Contains in php:7.1-fpm-alpine
 # Remove xfs user and group (gid:33 uid:33)
@@ -36,6 +35,7 @@ RUN set -x \
         openssl-dev \
         tzdata \
     && cp /usr/share/zoneinfo/PRC /etc/localtime \
+    && cp /tmp/ext/phalcon.so $(php-config --extension-dir)
     && apk add gnu-libiconv --update-cache --repository "https://mirrors.aliyun.com/alpine/edge/community" --allow-untrusted \
     && docker-php-ext-install -j "$(nproc)" iconv pdo_mysql zip bcmath opcache \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
