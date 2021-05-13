@@ -19,10 +19,10 @@ COPY ext/phalcon.so /usr/local/lib/php/extensions/no-debug-non-zts-20131226
 # Date default time zone set as PRC
 # Set maximum memory limit to 512MB
 # XHProf 比较讨厌，tgz里面还有一层extension目录，会导致无法直接用docker-php-ext-install 安装
- #&& echo "https://mirrors.aliyun.com/alpine/v${ALPINE_VERSION}/main" > /etc/apk/repositories \
- #&& echo "https://mirrors.aliyun.com/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories \
 RUN set -x \
  && export ALPINE_VERSION=$(sed 's/\.\d\+$//' /etc/alpine-release) \
+ && echo "https://mirrors.aliyun.com/alpine/v${ALPINE_VERSION}/main" > /etc/apk/repositories \
+ && echo "https://mirrors.aliyun.com/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories \
  && apk add --no-cache --virtual /tmp/.build-deps \
         $PHPIZE_DEPS \
         coreutils \
@@ -36,7 +36,7 @@ RUN set -x \
         openssl-dev \
         tzdata \
     && cp /usr/share/zoneinfo/PRC /etc/localtime \
-    && apk add gnu-libiconv --update-cache --repository "https://mirrors.aliyun.com/alpine/edge/testing" --allow-untrusted \
+    && apk add gnu-libiconv --update-cache --repository "https://mirrors.aliyun.com/alpine/edge/community" --allow-untrusted \
     && docker-php-ext-install -j "$(nproc)" iconv pdo_mysql zip bcmath opcache \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j "$(nproc)" gd \
