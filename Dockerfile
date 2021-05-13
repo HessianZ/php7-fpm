@@ -34,7 +34,6 @@ RUN set -x \
         libzip-dev \
         openssl-dev \
         tzdata \
-    && apk add --no-cache openssl \
     && cp /usr/share/zoneinfo/PRC /etc/localtime \
     && apk add gnu-libiconv --update-cache --repository "https://mirrors.aliyun.com/alpine/edge/community" --allow-untrusted \
     && cp /tmp/ext/phalcon.so $(php-config --extension-dir) \
@@ -51,8 +50,7 @@ RUN set -x \
     && pecl install /tmp/ext/xhprof-2.2.0.tgz \
     && rm -rf /tmp/*.tgz \
 	&& apk del /tmp/.build-deps \
-	&& apk del tzdata \
-    && apk add --no-cache libzip libpng libjpeg freetype libmcrypt \
+    && apk add --no-cache libzip libpng libjpeg freetype libmcrypt openssl \
     && sed -i "s/:82:82:/:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g" /etc/passwd \
     && sed -i "s/:82:/:${PHP_WWW_DATA_GID}:/g" /etc/group \
     && chown ${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID} -R /home/www-data \
