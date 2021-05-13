@@ -34,6 +34,7 @@ RUN set -x \
         libzip-dev \
         openssl-dev \
         tzdata \
+    && apk add --no-cache openssl \
     && cp /usr/share/zoneinfo/PRC /etc/localtime \
     && apk add gnu-libiconv --update-cache --repository "https://mirrors.aliyun.com/alpine/edge/community" --allow-untrusted \
     && cp /tmp/ext/phalcon.so $(php-config --extension-dir) \
