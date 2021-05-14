@@ -9,7 +9,7 @@ ENV PHP_POOL_PM_CONTROL=dynamic \
     PHP_CONF_LOG_DIR=/data/logs/php \
     PHP_WWW_DATA_GID=1000 \
     PHP_WWW_DATA_UID=1000 \
-    WKHTML_DEPS="ibxext fontconfig libxrender libstdc++ libgcc gcompat"
+    WKHTML_DEPS="libxext fontconfig libxrender libstdc++ libgcc gcompat
 
 COPY ext/* /tmp/ext/
 
