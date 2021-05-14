@@ -8,7 +8,8 @@ ENV PHP_POOL_PM_CONTROL=dynamic \
     PHP_POOL_PM_MAX_SPARE_SERVERS=250 \
     PHP_CONF_LOG_DIR=/data/logs/php \
     PHP_WWW_DATA_GID=1000 \
-    PHP_WWW_DATA_UID=1000
+    PHP_WWW_DATA_UID=1000 \
+    WKHTML_DEPS="ibxext fontconfig libxrender libstdc++ libgcc gcompat"
 
 COPY ext/* /tmp/ext/
 
@@ -45,12 +46,14 @@ RUN set -x \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mongodb-1.8.2.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/psr-1.0.1.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mcrypt-1.0.3.tgz \
-    && docker-php-ext-install -j "$(nproc)" redis mongodb psr mcrypt sockets \
+    && pecl bundle -d /usr/src/php/ext /tmp/ext/swoole-4.4.8.tgz \
+    && docker-php-ext-install -j "$(nproc)" redis mongodb psr mcrypt sockets swoole \
     && docker-php-ext-enable phalcon \
     && pecl install /tmp/ext/xhprof-2.2.0.tgz \
     && rm -rf /tmp/*.tgz \
 	&& apk del /tmp/.build-deps \
     && apk add --no-cache libzip libpng libjpeg freetype libmcrypt openssl \
+    && apk add --no-cache $WKHTML_DEPS \
     && sed -i "s/:82:82:/:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g" /etc/passwd \
     && sed -i "s/:82:/:${PHP_WWW_DATA_GID}:/g" /etc/group \
     && chown ${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID} -R /home/www-data \

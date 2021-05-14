@@ -1,5 +1,8 @@
 # php7-fpm
 
+长江商学院专供版本 PHP 7.2
+
+
 ## Extensions
 * iconv
 * mcrypt
@@ -10,6 +13,9 @@
 * zip
 * bcmath
 * gd with (freetype, jpeg)
+* phalcon 3.4
+* mongodb
+* swoole
 
 ## Addtional Configurations
 * date.timezone=PRC
