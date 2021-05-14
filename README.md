@@ -15,7 +15,7 @@
 * gd with (freetype, jpeg)
 * phalcon 3.4
 * mongodb
-* swoole
+* swoole 4.4.8
 
 ## Addtional Configurations
 * date.timezone=PRC
