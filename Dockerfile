@@ -36,7 +36,7 @@ RUN set -x \
         openssl-dev \
         tzdata \
     && cp /usr/share/zoneinfo/PRC /etc/localtime \
-    && apk add gnu-libiconv --update-cache --repository "https://mirrors.aliyun.com/alpine/edge/community" --allow-untrusted \
+    && apk add gnu-libiconv --update-cache --repository "https://mirrors.aliyun.com/alpine/v3.10/community" --allow-untrusted \
     && cp /tmp/ext/phalcon.so $(php-config --extension-dir) \
     && docker-php-ext-install -j "$(nproc)" iconv pdo_mysql zip bcmath opcache \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
