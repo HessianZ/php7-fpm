@@ -14,14 +14,14 @@ COPY ext/* /tmp/ext/
 
 # $PHPIZE_DEPS Contains in php:7.1-fpm-alpine
 # Remove xfs user and group (gid:33 uid:33)
-# Change Alpine default www uid/gid from 82 to 33 (CentOS default)
+# Change Alpine default www uid/gid from 82 to 1000
 # Date default time zone set as PRC
 # Set maximum memory limit to 512MB
 # XHProf 比较讨厌，tgz里面还有一层extension目录，会导致无法直接用docker-php-ext-install 安装
 RUN set -x \
  && export ALPINE_VERSION=$(sed 's/\.\d\+$//' /etc/alpine-release) \
- && echo "https://mirrors.cloud.tencent.com/alpine/v${ALPINE_VERSION}/main" > /etc/apk/repositories \
- && echo "https://mirrors.cloud.tencent.com/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories \
+ && echo "https://mirrors.aliyun.com/alpine/v${ALPINE_VERSION}/main" > /etc/apk/repositories \
+ && echo "https://mirrors.aliyun.com/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories \
  && apk add --no-cache --virtual /tmp/.build-deps \
         $PHPIZE_DEPS \
         coreutils \
@@ -34,8 +34,9 @@ RUN set -x \
         libzip-dev \
         tzdata \
         openssl-dev \
-    && apk add gnu-libiconv --update-cache --repository "https://mirrors.cloud.tencent.com/alpine/edge/testing" --allow-untrusted \
+        tzdata \
     && cp /usr/share/zoneinfo/PRC /etc/localtime \
+    && apk add gnu-libiconv --update-cache --repository "https://mirrors.aliyun.com/alpine/edge/testing" --allow-untrusted \
     && docker-php-ext-install -j "$(nproc)" iconv pdo_mysql zip bcmath opcache \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j "$(nproc)" gd \
@@ -45,7 +46,7 @@ RUN set -x \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/psr-1.0.1.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/phalcon-4.1.0.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mcrypt-1.0.3.tgz \
-    && docker-php-ext-install -j "$(nproc)" redis mongodb psr phalcon mcrypt \
+    && docker-php-ext-install -j "$(nproc)" redis mongodb psr phalcon mcrypt sockets \
     && pecl install /tmp/ext/xhprof-2.2.0.tgz \
     && rm -rf /tmp/*.tgz \
 	&& apk del /tmp/.build-deps \
@@ -53,9 +54,10 @@ RUN set -x \
     && apk add --no-cache libzip libpng libjpeg freetype libmcrypt \
     && sed -i "s/:82:82:/:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g" /etc/passwd \
     && sed -i "s/:82:/:${PHP_WWW_DATA_GID}:/g" /etc/group \
+    && chown ${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID} -R /home/www-data \
     && cd /usr/local/etc \
-    && cp php.ini-production php.ini \
-    && sed -i "s/short_open_tag = Off/short_open_tag = On/g" php.ini \
+    && cp /usr/src/php/php.ini-production /usr/local/etc/php/php.ini \
+    && sed -i "s/short_open_tag = Off/short_open_tag = On/g" /usr/local/etc/php/php.ini \
     && echo "date.timezone=PRC" > php/conf.d/timezone.ini \
     && echo "memory_limit=512M" > php/conf.d/memory.ini \
     && sed -i "s/^pm =.*/pm = $PHP_POOL_PM_CONTROL/" php-fpm.d/www.conf \
