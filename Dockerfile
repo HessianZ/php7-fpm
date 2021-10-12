@@ -43,9 +43,10 @@ RUN set -x \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/redis-5.3.2.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mongodb-1.8.2.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/psr-1.0.1.tgz \
-    && pecl bundle -d /usr/src/php/ext /tmp/ext/phalcon-4.1.0.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mcrypt-1.0.3.tgz \
-    && docker-php-ext-install -j "$(nproc)" redis mongodb psr phalcon mcrypt sockets \
+    && docker-php-ext-install -j "$(nproc)" redis mongodb psr mcrypt sockets \
+    && cp /tmp/ext/phalcon.so $(php-config --extension-dir) \
+    && docker-php-ext-enable phalcon \
     && pecl install /tmp/ext/xhprof-2.2.0.tgz \
     && rm -rf /tmp/*.tgz \
 	&& apk del /tmp/.build-deps \
