@@ -34,6 +34,7 @@ RUN set -x \
         pcre-dev \
         libzip-dev \
         openssl-dev \
+        imagemagick-dev \
         tzdata \
     && cp /usr/share/zoneinfo/PRC /etc/localtime \
     && apk add gnu-libiconv --update-cache --repository "https://mirrors.aliyun.com/alpine/v3.10/community" --allow-untrusted \
@@ -47,7 +48,8 @@ RUN set -x \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/psr-1.0.1.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mcrypt-1.0.3.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/swoole-4.4.8.tgz \
-    && docker-php-ext-install -j "$(nproc)" redis mongodb psr mcrypt sockets swoole \
+    && pecl bundle -d /usr/src/php/ext /tmp/ext/imagick-3.6.0.tgz \
+    && docker-php-ext-install -j "$(nproc)" redis mongodb psr mcrypt sockets swoole imagick \
     && docker-php-ext-enable phalcon \
     && pecl install /tmp/ext/xhprof-2.2.0.tgz \
     && rm -rf /tmp/*.tgz \
