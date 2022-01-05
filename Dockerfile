@@ -1,4 +1,4 @@
-FROM php:7.4-fpm-alpine
+FROM php:7.4.27-fpm-alpine
 
 # 生产环境配置
 ENV PHP_POOL_PM_CONTROL=dynamic \
