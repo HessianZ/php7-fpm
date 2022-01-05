@@ -12,7 +12,7 @@ ENV PHP_POOL_PM_CONTROL=dynamic \
 
 COPY ext/* /tmp/ext/
 
-# $PHPIZE_DEPS Contains in php:7.1-fpm-alpine
+# $PHPIZE_DEPS Contains in php base image
 # Remove xfs user and group (gid:33 uid:33)
 # Change Alpine default www uid/gid from 82 to 1000
 # Date default time zone set as PRC
@@ -30,29 +30,26 @@ RUN set -x \
         libjpeg-turbo-dev \
         libmcrypt-dev \
         libpng-dev \
+        libwebp-dev \
         pcre-dev \
         libzip-dev \
         tzdata \
         openssl-dev \
-        tzdata \
     && cp /usr/share/zoneinfo/PRC /etc/localtime \
-    && apk add gnu-libiconv --update-cache --repository "https://mirrors.aliyun.com/alpine/edge/testing" --allow-untrusted \
-    && docker-php-ext-install -j "$(nproc)" iconv pdo_mysql zip bcmath opcache \
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install -j "$(nproc)" gd \
-    && docker-php-ext-install -j "$(nproc)" mysqli \
-    && docker-php-ext-install -j "$(nproc)" pcntl \
+    && apk add --update-cache --repository "https://mirrors.aliyun.com/alpine/edge/testing" --allow-untrusted gnu-libiconv gnu-libiconv-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install -j "$(nproc)" gd iconv pdo_mysql zip bcmath opcache mysqli sockets pcntl \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/redis-5.3.2.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mongodb-1.8.2.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/psr-1.0.1.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/phalcon-4.1.2.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mcrypt-1.0.3.tgz \
-    && docker-php-ext-install -j "$(nproc)" redis mongodb psr phalcon mcrypt sockets \
+    && docker-php-ext-install -j "$(nproc)" redis mongodb psr phalcon mcrypt \
     && pecl install /tmp/ext/xhprof-2.2.0.tgz \
     && rm -rf /tmp/*.tgz \
 	&& apk del /tmp/.build-deps \
 	&& apk del tzdata \
-    && apk add --no-cache libzip libpng libjpeg freetype libmcrypt \
+    && apk add --no-cache libzip libpng libjpeg libwebp freetype libmcrypt \
     && sed -i "s/:82:82:/:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g" /etc/passwd \
     && sed -i "s/:82:/:${PHP_WWW_DATA_GID}:/g" /etc/group \
     && chown ${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID} -R /home/www-data \
