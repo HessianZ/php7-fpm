@@ -34,12 +34,14 @@ RUN set -x \
         libzip-dev \
         openssl-dev \
         tzdata \
+        tidyhtml-dev \
     && cp /usr/share/zoneinfo/PRC /etc/localtime \
     && apk add gnu-libiconv --update-cache --repository "https://mirrors.aliyun.com/alpine/edge/testing" --allow-untrusted \
     && docker-php-ext-install -j "$(nproc)" iconv pdo_mysql zip bcmath opcache \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j "$(nproc)" gd \
     && docker-php-ext-install -j "$(nproc)" mysqli \
+    && docker-php-ext-install -j "$(nproc)" tidy \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/redis-5.3.2.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mongodb-1.8.2.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/psr-1.0.1.tgz \
@@ -51,7 +53,7 @@ RUN set -x \
     && rm -rf /tmp/*.tgz \
 	&& apk del /tmp/.build-deps \
 	&& apk del tzdata \
-    && apk add --no-cache libzip libpng libjpeg freetype libmcrypt \
+    && apk add --no-cache libzip libpng libjpeg freetype libmcrypt tidyhtml-libs \
     && sed -i "s/:82:82:/:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g" /etc/passwd \
     && sed -i "s/:82:/:${PHP_WWW_DATA_GID}:/g" /etc/group \
     && chown ${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID} -R /home/www-data \
