@@ -41,7 +41,7 @@ RUN set -x \
     && docker-php-ext-install -j "$(nproc)" gd iconv pdo_mysql zip bcmath opcache mysqli sockets pcntl \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/redis-5.3.2.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mongodb-1.8.2.tgz \
-    && pecl bundle -d /usr/src/php/ext /tmp/ext/psr-1.0.1.tgz \
+    && pecl bundle -d /usr/src/php/ext /tmp/ext/psr-1.2.0.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/phalcon-4.1.2.tgz \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mcrypt-1.0.3.tgz \
     && docker-php-ext-install -j "$(nproc)" redis mongodb psr phalcon mcrypt \
