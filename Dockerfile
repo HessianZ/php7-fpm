@@ -11,7 +11,7 @@ ENV PHP_POOL_PM_CONTROL=dynamic \
     PHP_WWW_DATA_UID=1000
 
 COPY ext/* /tmp/ext/
-COPY sources-huawei.list /etc/apt/
+COPY sources-huawei.list /etc/apt/sources.list
 
 # $PHPIZE_DEPS Contains in php base image
 # Remove xfs user and group (gid:33 uid:33)
