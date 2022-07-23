@@ -1,4 +1,4 @@
-FROM php:7.4.27-fpm-alpine
+FROM php:7.4.30-fpm-bullseye
 
 # 生产环境配置
 ENV PHP_POOL_PM_CONTROL=dynamic \
@@ -11,6 +11,7 @@ ENV PHP_POOL_PM_CONTROL=dynamic \
     PHP_WWW_DATA_UID=1000
 
 COPY ext/* /tmp/ext/
+COPY sources-huawei.list /etc/apt/
 
 # $PHPIZE_DEPS Contains in php base image
 # Remove xfs user and group (gid:33 uid:33)
@@ -18,25 +19,22 @@ COPY ext/* /tmp/ext/
 # Date default time zone set as PRC
 # Set maximum memory limit to 512MB
 # XHProf 比较讨厌，tgz里面还有一层extension目录，会导致无法直接用docker-php-ext-install 安装
-RUN set -x \
- && export ALPINE_VERSION=$(sed 's/\.\d\+$//' /etc/alpine-release) \
- && echo "https://mirrors.aliyun.com/alpine/v${ALPINE_VERSION}/main" > /etc/apk/repositories \
- && echo "https://mirrors.aliyun.com/alpine/v${ALPINE_VERSION}/community" >> /etc/apk/repositories \
- && apk add --no-cache --virtual /tmp/.build-deps \
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
         $PHPIZE_DEPS \
         coreutils \
-        freetype-dev \
-        jpeg-dev \
-        libjpeg-turbo-dev \
+        libfreetype-dev \
+        libjpeg-dev \
+        libjpeg62-turbo-dev \
         libmcrypt-dev \
         libpng-dev \
         libwebp-dev \
-        pcre-dev \
+        libpcre2-dev \
         libzip-dev \
         tzdata \
-        openssl-dev \
+        libssl-dev \
     && cp /usr/share/zoneinfo/PRC /etc/localtime \
-    && apk add --update-cache --repository "https://mirrors.aliyun.com/alpine/edge/testing" --allow-untrusted gnu-libiconv gnu-libiconv-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j "$(nproc)" gd iconv pdo_mysql zip bcmath opcache mysqli sockets pcntl \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/redis-5.3.2.tgz \
@@ -46,13 +44,14 @@ RUN set -x \
     && pecl bundle -d /usr/src/php/ext /tmp/ext/mcrypt-1.0.3.tgz \
     && docker-php-ext-install -j "$(nproc)" redis mongodb psr phalcon mcrypt \
     && pecl install /tmp/ext/xhprof-2.2.0.tgz \
-    && rm -rf /tmp/*.tgz \
-	&& apk del /tmp/.build-deps \
-	&& apk del tzdata \
-    && apk add --no-cache libzip libpng libjpeg libwebp freetype libmcrypt \
+    && rm -rf /tmp/*.tgz; \
+	\
+	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false
+
+RUN set -eux; \
+    apt-get install -y --no-install-recommends libzip4 libpng16-16 libjpeg62-turbo libwebp6 libfreetype6 libmcrypt4 \
     && sed -i "s/:82:82:/:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g" /etc/passwd \
     && sed -i "s/:82:/:${PHP_WWW_DATA_GID}:/g" /etc/group \
-    && chown ${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID} -R /home/www-data \
     && cd /usr/local/etc \
     && cp /usr/src/php/php.ini-production /usr/local/etc/php/php.ini \
     && sed -i "s/short_open_tag = Off/short_open_tag = On/g" /usr/local/etc/php/php.ini \
@@ -65,10 +64,9 @@ RUN set -x \
     && sed -i "s/^pm.max_spare_servers.*/pm.max_spare_servers = $PHP_POOL_PM_MAX_SPARE_SERVERS/" php-fpm.d/www.conf \
     && sed -i "s!^error_log =.*!error_log = $PHP_CONF_LOG_DIR/php.error.log!" php-fpm.d/docker.conf \
     && sed -i "s!^access.log =.*!access.log = $PHP_CONF_LOG_DIR/php.\$pool.access.log!" php-fpm.d/docker.conf \
-    && echo 'access.format = "%R - %u %t \"%m %{REQUEST_URI}e\" %s %f %{mili}d %{kilo}M %C%%"' >> php-fpm.d/docker.conf
+    && echo 'access.format = "%R - %u %t \"%m %{REQUEST_URI}e\" %s %f %{mili}d %{kilo}M %C%%"' >> php-fpm.d/docker.conf; \
+    \
+    chown ${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID} -R /var/www
 
-# Fix iconv compatible between alphine and php
-ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
-
-VOLUME /data/www
-WORKDIR /data/www
+VOLUME /data
+WORKDIR /data
