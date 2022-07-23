@@ -1,16 +1,3 @@
 # php7-fpm
 
-## Extensions
-* iconv
-* mcrypt
-* pdo
-* pdo_mysql
-* mysqli
-* redis
-* zip
-* bcmath
-* gd with (freetype, jpeg)
-
-## Addtional Configurations
-* date.timezone=PRC
-* memory_limit=512M
+这个分支会安装wkhtmltopdf，加上一堆依赖之后，镜像会增加到1GB左右，谨慎使用。
