@@ -50,8 +50,8 @@ RUN set -eux; \
 
 RUN set -eux; \
     apt-get install -y --no-install-recommends libzip4 libpng16-16 libjpeg62-turbo libwebp6 libfreetype6 libmcrypt4 \
-    && sed -i "s/:82:82:/:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g" /etc/passwd \
-    && sed -i "s/:82:/:${PHP_WWW_DATA_GID}:/g" /etc/group \
+    && sed -i "s/www-data:x:[0-9]\+:[0-9]\+/www-data:x:${PHP_WWW_DATA_UID}:${PHP_WWW_DATA_GID}:/g" /etc/passwd \
+    && sed -i "s/www-data:x:[0-9]\+:/www-data:x:${PHP_WWW_DATA_GID}:/g" /etc/group \
     && cd /usr/local/etc \
     && cp /usr/src/php/php.ini-production /usr/local/etc/php/php.ini \
     && sed -i "s/short_open_tag = Off/short_open_tag = On/g" /usr/local/etc/php/php.ini \
